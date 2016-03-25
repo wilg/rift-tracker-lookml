@@ -21,9 +21,25 @@
     description: Delivery state/province (for US/Canada) or country
     sql: ${response}[4]
 
-  - dimension: shipping_month_given
+  - dimension: shipping_month_given_raw
     sql: ${response}[5]
+#     hidden: true
     
+  - dimension: shipping_month_given
+    sql: |
+      CASE 
+        WHEN ${shipping_month_given_raw} IS NULL THEN NULL
+        WHEN ${shipping_month_given_raw} = 'I don''t know / didn''t see' THEN NULL
+        WHEN ${shipping_month_given_raw} = 'March' THEN '3 (March)'
+        WHEN ${shipping_month_given_raw} = 'April' THEN '4 (April)'
+        WHEN ${shipping_month_given_raw} = 'May' THEN '5 (May)'
+        WHEN ${shipping_month_given_raw} = 'June' THEN '6 (June)'
+        WHEN ${shipping_month_given_raw} = 'July' THEN '7 (July)'
+        WHEN ${shipping_month_given_raw} ILIKE '%April%' THEN '4 (April)'
+        WHEN ${shipping_month_given_raw} = 'Q2' THEN NULL
+        ELSE 'Something Crazy'
+      END
+
   - dimension: order_processed_date
     sql: ${response}[6]
     description: "Date when you received an email saying \"Your order has been processed and your Rift is almost on its way\" (right before shipping). Leave blank if not received yet"
@@ -41,18 +57,18 @@
     sql: ${response}[9]
     
   - dimension: kickstarter_backer_number
-    sql: ${response}[9]
+    sql: ${response}[10]
     description: |
       If answered "I'm a kickstarter backer" above: what is your approximate kickstarter backer number?
   
   - dimension: comments
-    sql: ${response}[10]
+    sql: ${response}[11]
   
   - dimension: reddit_username
-    sql: ${response}[11]
+    sql: ${response}[12]
     
   - dimension: order_number
-    sql: ${response}[12]
+    sql: ${response}[13]
 
 # Timestamp,
 # Delivery state/province (for US/Canada) or country,
